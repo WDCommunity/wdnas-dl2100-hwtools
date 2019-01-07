@@ -136,11 +136,11 @@ class WdHwConnector(BasicPacketClient):
         return LEDStatus(response)
     
     def setLCDBacklightIntensity(self, intensity):
-        response = self._executeCommand(CommandPacket.CMD_LCD_BACKLIGHT_INTENSITY_GET,
+        response = self._executeCommand(CommandPacket.CMD_LCD_BACKLIGHT_INTENSITY_SET,
                                         parameter=bytearray([intensity]))
     
     def getLCDBacklightIntensity(self):
-        response = self._executeCommand(CommandPacket.CMD_LCD_BACKLIGHT_INTENSITY_SET)
+        response = self._executeCommand(CommandPacket.CMD_LCD_BACKLIGHT_INTENSITY_GET)
         if len(response) > 0:
             return response[0]
         else:
@@ -443,11 +443,11 @@ class WdHwClient(object):
                     conn.setFanSpeed(args.speed)
 
         elif args.command == "lcd":
-            if args.text:
+            if args.text is not None:
                 line1, sep, line2 = args.text.partition('\\n')
                 conn.setLCDText(1, line1)
                 conn.setLCDText(2, line2)
-            elif args.backlight:
+            elif args.backlight is not None:
                 conn.setLCDBacklightIntensity(args.backlight)
             else:
                 conn.getLCDBacklightIntensity()

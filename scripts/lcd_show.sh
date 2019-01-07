@@ -39,33 +39,32 @@ function get_fan_speed {
 	wdhwc fan | sed 's#: #\\n#'
 }
 
-function show {
-	wdhwc lcd -t "$1"
-}
 
 # button press event triggers both on press as on release
 # so we only act on the even numbers
 #
 # TODO: add long-press example
 
-case "$(( $1 % 10 ))" in 
+case "$(( ${1#-} % 10 ))" in
 	0)
-		show "   Welcome    "
+		wdhwc lcd -t "Dim the lights"
+		wdhwc lcd -s 0
 		;;
 	2)
-		show "IP address\n$(get_ip)"
+		wdhwc lcd -s 240
+		wdhwc lcd -t "IP address\n$(get_ip)"
 		;;
 	4)
 		root_usage=$(get_disk_usage /)
-		show "Root Disk Usage\n${root_usage}"
+		wdhwc lcd -t "Root Disk Usage\n${root_usage}"
 		;;
 	6)
 		temperature=$(get_temperature)
-		show "$temperature"
+		wdhwc lcd -t "$temperature"
 		;;
 	8)	
 		fan_speed=$(get_fan_speed)
-		show "$fan_speed"
+		wdhwc lcd -t "$fan_speed"
 		;;
 	*)
 		# do nothing
