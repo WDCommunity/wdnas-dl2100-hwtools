@@ -1,7 +1,7 @@
 [Unit]
 Description=WD Hardware Controller Daemon
-#Wants=network-online.target
-#After=network-online.target
+Wants=network-online.target
+After=network-online.target
 
 [Service]
 Type=simple
@@ -12,8 +12,8 @@ Environment=
 WorkingDirectory=/usr/local/lib/wdhwd
 RuntimeDirectory=wdhwd
 RuntimeDirectoryMode=0755
-#LogsDirectory=wdhwd
-#LogsDirectoryMode=0750
+LogsDirectory=wdhwd
+LogsDirectoryMode=0755
 StandardOutput=inherit
 ExecStart=/usr/bin/python3 -m wdhwdaemon.daemon -q
 Restart=always

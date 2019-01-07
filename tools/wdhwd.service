@@ -1,7 +1,7 @@
 [Unit]
 Description=WD Hardware Controller Daemon
-#Wants=network-online.target
-#After=network-online.target
+Wants=network-online.target
+After=network-online.target
 
 [Service]
 Type=simple
@@ -11,7 +11,7 @@ Type=simple
 Environment=
 WorkingDirectory=/usr/local/lib/wdhwd
 #RuntimeDirectory=wdhwd
-#RuntimeDirectoryMode=0750
+#RuntimeDirectoryMode=0755
 #LogsDirectory=wdhwd
 #LogsDirectoryMode=0750
 StandardOutput=inherit

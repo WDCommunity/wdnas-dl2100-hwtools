@@ -3,16 +3,21 @@
 # WD hardware tools installer for Debian Stretch
 #
 
-apt install pkg-config
-
 SUDOERS=/etc/sudoers.d/wdhwd
 CONFIG=/etc/wdhwd.conf
 INSTALLDIR=/usr/local/lib/wdhwd
 LOGDIR=/var/log/wdhwd
 WDHWC=/usr/local/sbin/wdhwc
-SERVICE="$(pkg-config systemd --variable=systemdsystemunitdir)/wdhwd.service"
+
+if hash pkgconfig 2>/dev/null; then
+	SERVICE="$(pkg-config systemd --variable=systemdsystemunitdir)/wdhwd.service"
+else
+	# no need to install 100MB of dependencies for pkgconfig
+	SERVICE=/lib/systemd/system/wdhwd.service
+fi
 
 echo "Check the model"
+# TODO: analyse lspci to get the exact model
 lscpu | grep N3710
 if [ ! $? ]; then
 	echo "Only the WD My Cloud PR2100 and PR4100 are currently supported in this installer"
@@ -25,6 +30,15 @@ if [ ! $? ]; then
 	echo "The 8250_lpss driver is not loaded"
 	echo "Look on the community.wd.com forum for more info"
 	exit 1
+fi
+
+echo "Get the serial port"
+port=/dev/$(dmesg | grep -m1 "irq = 19" | sed -e 's#.*\(ttyS[0-9]*\) .*#\1#')
+echo "Found PMC module at serial port $port"
+
+if "$(lsof -t $port)" -eq ""; then
+	echo "LN1=Installing...\r" > $port
+	echo "LN2=\r" > $port
 fi
 
 echo "Install wdhw tools dependencies"
@@ -43,6 +57,7 @@ chmod ug=r,o= ${SUDOERS}
 
 echo "Create wdhwd configuration file"
 cp -f tools/wdhwd.conf ${CONFIG}
+sed -i "s#^pmc_port=.*#pmc_port=$port#" ${CONFIG}
 chown root.root ${CONFIG}
 chmod u=rw,go=r ${CONFIG}
 
@@ -53,7 +68,7 @@ chown -R root.root ${INSTALLDIR}
 chmod -R u=rwX,go=rX ${INSTALLDIR}
 chmod -R u=rwx,go=rx ${INSTALLDIR}/scripts/*
 
-mkdir ${LOGDIR}
+mkdir -p ${LOGDIR}
 chown root.wdhwd ${LOGDIR}
 chmod -R ug=rwX,o=rX ${LOGDIR}
 
@@ -70,13 +85,17 @@ cp tools/wdhwd.service.no_root $SERVICE
 chown root.root $SERVICE
 chmod u=rw,go=r $SERVICE
 
-systemctl status wdhwd.service > /dev/null
+systemctl is-active wdhwd.service 2>/dev/null
 if [[ $? -eq 0 ]]; then
 	systemctl stop wdhwd.service
-	sleep 2
+	sleep 5
+	echo "Processes still using $port:"
+	fuser -cv $port
 	systemctl daemon-reload
-	systemctl restart wdhwd.service
+	systemctl enable wdhwd.service
+	systemctl start wdhwd.service
 else
+	systemctl daemon-reload
 	systemctl enable wdhwd.service
 	systemctl start wdhwd.service
 fi
