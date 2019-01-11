@@ -21,8 +21,8 @@
 ## 
 ################################################################################
 
-# show IP address to LCD
-IPADDRESS=$(ip route get 1 | awk '{print $NF;exit}')
+# show IP address to LCD - thanks Stephen Kitt
+IPADDRESS=$(ip route get 1 | sed 's/^.*src \([^ ]*\).*$/\1/;q')
 wdhwc lcd -t "PR4100 ready\nIP:${IPADDRESS}"
 
 # send mail
