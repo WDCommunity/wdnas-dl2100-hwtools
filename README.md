@@ -12,13 +12,23 @@ You are using the programs in this repository at your own risk. _We are not
 responsible for any damage caused by these programs, their incorrect usage, or
 inaccuracies in this manual._
 
-## GETTING STARTED
+## Automatic installation
+
+Simply run the installer.
+
+    ./install.sh
+    
+Tested on Ubuntu 18 and Debian Stretch. Please create a ticket if you experience any issues.
+
+For DSM, checkout the `dsm` branch first.
+
+## Manual installation
 
 ### Prerequisites
 
 The following packages need to be installed in order to use the tools:
 
-    sudo apt install pkg-config python3 python3-serial python3-smbus
+    sudo apt install python3 python3-serial python3-smbus
 
 Moreover, _hddtemp_ is necessary in order to monitor the hard disk temperature:
 
@@ -82,6 +92,8 @@ daemon, an appropriate service unit file needs to be installed.
     sudo chmod u=rw,go=r $(pkg-config systemd --variable=systemdsystemunitdir)/wdhwd.service
     sudo systemctl enable wdhwd.service
     sudo systemctl start wdhwd.service
+
+If you don't have pkg-config, simply use `/lib/systemd/system/wdhwd.service`.
 
 ## GET LATEST VERSION
 
