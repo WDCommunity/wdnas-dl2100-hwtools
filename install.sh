@@ -42,7 +42,7 @@ if "$(lsof -t $port)" -eq ""; then
 fi
 
 echo "Install wdhw tools dependencies"
-apt install python3 python3-serial python3-smbus hddtemp
+apt install -y python3 python3-serial python3-smbus hddtemp
 
 echo "Create wdhwd user"
 id wdhwd
