@@ -19,26 +19,29 @@ fi
 echo "Check the model"
 # TODO: analyse lspci to get the exact model
 lscpu | grep N3710
-if [ ! $? ]; then
+if [[ ! $? -eq 0 ]]; then
 	echo "Only the WD My Cloud PR2100 and PR4100 are currently supported in this installer"
+    echo "Do not run this installer on a virtual machine"
 	exit 1
 fi
 
 echo "Check that the 8250_lpss driver is loaded"
 lspci -k -s 00:1e | grep 8250_lpss
-if [ ! $? ]; then
+if [[ ! $? -eq 0 ]]; then
 	echo "The 8250_lpss driver is not loaded"
-	echo "Look on the community.wd.com forum for more info"
+	echo "Look on the community.wd.com forum for more info about the 8250_lpss driver"
 	exit 1
 fi
 
 echo "Get the serial port"
-port=/dev/$(dmesg | grep -m1 "irq = 19" | sed -e 's#.*\(ttyS[0-9]*\) .*#\1#')
-echo "Found PMC module at serial port $port"
+PORT=/dev/$(dmesg | grep -m1 "irq = 19" | sed -e 's#.*\(ttyS[0-9]*\) .*#\1#')
+echo "Found PMC module at serial port ${PORT}"
 
-if [ "$(lsof -t $port)"="" ]; then
-	echo "LN1=Installing...\r" > $port
-	echo "LN2=\r" > $port
+if [ "$(lsof -t $)" = "" ]; then
+	echo "LN1=Installing...\r" > ${PORT}
+	echo "LN2=\r" > ${PORT}
+else
+    echo "WARNING: found processes using serial port ${PORT}: $(lsof -t ${PORT})"
 fi
 
 echo "Install wdhw tools dependencies"
@@ -57,7 +60,7 @@ chmod ug=r,o= ${SUDOERS}
 
 echo "Create wdhwd configuration file"
 cp -f tools/wdhwd.conf ${CONFIG}
-sed -i "s#^pmc_port=.*#pmc_port=$port#" ${CONFIG}
+sed -i "s#^pmc_port=.*#pmc_port=${PORT}#" ${CONFIG}
 chown root.root ${CONFIG}
 chmod u=rw,go=r ${CONFIG}
 
@@ -81,16 +84,17 @@ EOF
 chmod +x ${WDHWC}
 
 echo "Register wdhwd in systemd"
-cp tools/wdhwd.service.no_root $SERVICE
-chown root.root $SERVICE
-chmod u=rw,go=r $SERVICE
+cp tools/wdhwd.service.no_root ${SERVICE}
+chown root.root ${SERVICE}
+chmod u=rw,go=r ${SERVICE}
 
 systemctl is-active wdhwd.service 2>/dev/null
+# these extra checks are handy when repeatedly installing the wdhwd service
 if [[ $? -eq 0 ]]; then
 	systemctl stop wdhwd.service
 	sleep 5
-	echo "Processes still using $port:"
-	fuser -cv $port
+	echo "Processes still using ${PORT}:"
+	fuser -cv ${PORT}
 	systemctl daemon-reload
 	systemctl enable wdhwd.service
 	systemctl start wdhwd.service
