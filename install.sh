@@ -37,7 +37,7 @@ echo "Get the serial port"
 PORT=/dev/$(dmesg | grep -m1 "irq = 19" | sed -e 's#.*\(ttyS[0-9]*\) .*#\1#')
 echo "Found PMC module at serial port ${PORT}"
 
-if [ "$(lsof -t $)" = "" ]; then
+if [ "$(lsof -t $PORT)" = "" ]; then
 	echo "LN1=Installing...\r" > ${PORT}
 	echo "LN2=\r" > ${PORT}
 else
