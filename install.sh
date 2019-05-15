@@ -88,19 +88,14 @@ cp tools/wdhwd.service ${SERVICE}
 chown root.root ${SERVICE}
 chmod u=rw,go=r ${SERVICE}
 
-systemctl is-active wdhwd.service 2>/dev/null
+systemctl is-active wdhwd.service > /dev/null 2>&1
 # these extra checks are handy when repeatedly installing the wdhwd service
 if [[ $? -eq 0 ]]; then
 	systemctl stop wdhwd.service
 	sleep 5
 	echo "Processes still using ${PORT}:"
 	fuser -cv ${PORT}
-	systemctl daemon-reload
-	systemctl enable wdhwd.service
-	systemctl start wdhwd.service
-else
-	systemctl daemon-reload
-	systemctl enable wdhwd.service
-	systemctl start wdhwd.service
 fi
-
+systemctl daemon-reload
+systemctl enable wdhwd.service
+systemctl start wdhwd.service
