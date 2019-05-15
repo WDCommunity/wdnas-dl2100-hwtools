@@ -16,7 +16,7 @@ inaccuracies in this manual._
 
 Simply run the installer.
 
-    ./install.sh
+    sudo ./install.sh
     
 Tested on Ubuntu 18 and Debian Stretch. Please create a ticket if you experience any issues.
 
