@@ -84,7 +84,7 @@ EOF
 chmod +x ${WDHWC}
 
 echo "Register wdhwd in systemd"
-cp tools/wdhwd.service.no_root ${SERVICE}
+cp tools/wdhwd.service ${SERVICE}
 chown root.root ${SERVICE}
 chmod u=rw,go=r ${SERVICE}
 
