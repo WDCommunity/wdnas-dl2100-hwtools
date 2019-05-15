@@ -29,7 +29,7 @@ echo "Check that the 8250_lpss driver is loaded"
 lspci -k -s 00:1e | grep 8250_lpss
 if [[ ! $? -eq 0 ]]; then
 	echo "The 8250_lpss driver is not loaded"
-	echo "Look on the community.wd.com forum for more info about the 8250_lpss driver"
+	echo "Here's how to get a valid kernel or the 8250_lpss module: https://community.wd.com/t/guide-how-to-install-debian-linux-on-the-my-cloud-pr4100-nas/217141/2"
 	exit 1
 fi
 
